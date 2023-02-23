@@ -1,6 +1,6 @@
 package org.networkingUtilities.jobs;
 
-import org.networkingUtilities.localServer.serverChecker.ServerLivenessChecker;
+import org.networkingUtilities.serverHealth.ServerHealthClient;
 import org.networkingUtilities.utils.DiscordWebhook;
 
 import java.util.List;
@@ -29,35 +29,35 @@ public class ServerHealthJob implements BaseJob {
         }
         final Optional<String> maybeServerRestartFile =
                 Optional.ofNullable(arguments.size() > 2 ? arguments.get(2) : null);
-        final ServerLivenessChecker serverLivenessChecker = ServerLivenessChecker.builder()
+        final ServerHealthClient serverHealthClient = ServerHealthClient.builder()
                 .hostname(hostname)
                 .port(port)
                 .serverRestartFilePath(maybeServerRestartFile)
                 .build();
-        this.checkServerLiveness(serverLivenessChecker, MAX_RETRIES);
+        this.checkServerLiveness(serverHealthClient, MAX_RETRIES);
         return true;
     }
 
-    private void checkServerLiveness(final ServerLivenessChecker serverLivenessChecker, final int retries) {
+    private void checkServerLiveness(final ServerHealthClient serverHealthClient, final int retries) {
         if (retries < 0) {
             throw new IllegalArgumentException(String.format("Retries %d, cannot be less than 0%n", retries));
         }
 
 
-        if (!serverLivenessChecker.isServerAvailable()) {
+        if (!serverHealthClient.isServerAvailable()) {
             if (retries == 0) {
                 final String failureMessage =
-                        String.format("{\"content\": \"Server %s is unavailable, attempting server restart\"}", serverLivenessChecker);
+                        String.format("{\"content\": \"Server %s is unavailable, attempting server restart\"}", serverHealthClient);
                 this.discordWebhook.sendMessage(failureMessage);
-                final boolean restartedSuccessfully = serverLivenessChecker.restartServer();
+                final boolean restartedSuccessfully = serverHealthClient.restartServer();
                 if (!restartedSuccessfully) {
                     final String failedToRestartMessage =
-                            String.format("{\"content\": \"Failed to restart server %s\"}", serverLivenessChecker);
+                            String.format("{\"content\": \"Failed to restart server %s\"}", serverHealthClient);
                     this.discordWebhook.sendMessage(failedToRestartMessage);
                 }
             } else {
                 System.out.printf("Server liveness check failed for %s, sleeping for %d seconds%n",
-                        serverLivenessChecker, BACKOFF_IN_SECONDS);
+                        serverHealthClient, BACKOFF_IN_SECONDS);
                 try {
                     Thread.sleep(BACKOFF_IN_SECONDS * 1000);
                 } catch (InterruptedException ex) {
@@ -65,10 +65,10 @@ public class ServerHealthJob implements BaseJob {
                     ex.printStackTrace();
                     return;
                 }
-                checkServerLiveness(serverLivenessChecker, retries - 1);
+                checkServerLiveness(serverHealthClient, retries - 1);
             }
         } else {
-            System.out.printf("Server: %s was available%n", serverLivenessChecker);
+            System.out.printf("Server: %s was available%n", serverHealthClient);
         }
     }
 }
