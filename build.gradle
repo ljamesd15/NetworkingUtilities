@@ -34,7 +34,6 @@ spotbugs {
     showStackTraces = true
     showProgress = true
     effort = 'default'
-    excludeFilter = file("config/spotbugs/filter.xml")
     reportsDir = file("$buildDir/spotbugs")
 }
 
@@ -85,7 +84,7 @@ test {
 
 tasks.withType(Checkstyle) {
     reports {
-        xml.enabled false
-        html.enabled true
+        xml.required = false
+        html.required = true
     }
 }

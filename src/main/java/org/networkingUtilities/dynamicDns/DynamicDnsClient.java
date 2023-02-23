@@ -3,7 +3,7 @@ package org.networkingUtilities.dynamicDns;
 import lombok.Builder;
 
 @Builder
-public class DynamicDns {
+public class DynamicDnsClient {
 
     private final String recordName;
 

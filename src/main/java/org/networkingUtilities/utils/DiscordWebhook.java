@@ -1,18 +1,14 @@
 package org.networkingUtilities.utils;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import lombok.Builder;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+
+import java.io.IOException;
 
 @Builder
 public class DiscordWebhook {
@@ -24,7 +20,7 @@ public class DiscordWebhook {
     private final String webhookUrl = DEFAULT_WEBHOOK_URL;
 
 
-    public boolean sendDiscordMessage(final String jsonContent) {
+    public boolean sendMessage(final String jsonContent) {
         final HttpPost httpPost = new HttpPost(this.webhookUrl);
         httpPost.setHeader("Content-Type", "application/json");
         httpPost.setHeader("Accept", "application/json");

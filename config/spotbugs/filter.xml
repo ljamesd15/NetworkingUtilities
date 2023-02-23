@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<FindBugsFilter>
-    <Match>
-        <Class name="org.networkingUtilities.utils.JobRunner" />
-        <Bug pattern="EI_EXPOSE_REP" />
-    </Match>
-</FindBugsFilter>

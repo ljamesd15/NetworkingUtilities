@@ -1,4 +1,4 @@
-package org.networkingUtilities.localServer.serverChecker;
+package org.networkingUtilities.serverHealth;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.Builder;
@@ -11,7 +11,7 @@ import javax.net.ssl.SSLSocketFactory;
 
 @Builder
 @Data
-public class ServerLivenessChecker {
+public class ServerHealthClient {
 
     private final String hostname;
     private final int port;

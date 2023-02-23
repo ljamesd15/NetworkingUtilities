@@ -1,12 +1,13 @@
-package org.networkingUtilities.modules;
+package org.networkingUtilities.config.modules;
 
 import dagger.Module;
 import dagger.Provides;
-import javax.inject.Named;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.route53.Route53Client;
+
+import javax.inject.Named;
 
 @Module
 public class AwsModule {
