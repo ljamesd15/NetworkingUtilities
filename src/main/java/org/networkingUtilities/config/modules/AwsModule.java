@@ -15,8 +15,15 @@ public class AwsModule {
 
     @Provides
     @Named("Default")
-    public Region getAwsRegion() {
+    public Region getDefaultAwsRegion() {
         return Region.US_WEST_2;
+    }
+
+    @Provides
+    @Named("PartitionHome")
+    public Region getPartitionHomeAwsRegion() {
+        // Some services like Route53 and IAM operate from within a single region per partition so we need to hit the correct regional endpoint
+        return Region.AWS_GLOBAL;
     }
 
     @Provides
@@ -37,7 +44,7 @@ public class AwsModule {
 
     @Provides
     @Named("DynamicDns")
-    public Route53Client getDynamicDnsRoute53Client(@Named("Default") final Region region,
+    public Route53Client getDynamicDnsRoute53Client(@Named("PartitionHome") final Region region,
                                                     @Named("DynamicDns") final AwsCredentialsProvider credentialsProvider) {
         return Route53Client.builder()
                 .credentialsProvider(credentialsProvider)

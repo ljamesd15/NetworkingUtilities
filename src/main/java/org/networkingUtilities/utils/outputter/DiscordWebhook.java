@@ -34,13 +34,13 @@ public class DiscordWebhook implements Outputter {
         httpPost.setHeader("Content-Type", "application/json");
         httpPost.setHeader("Accept", "application/json");
 
-        try (CloseableHttpClient client = HttpClients.createDefault()) {
+        try (final CloseableHttpClient client = HttpClients.createDefault()) {
             httpPost.setEntity(new StringEntity(jsonContent));
             final CloseableHttpResponse response = client.execute(httpPost);
             System.out.printf("%s %s%n", response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
             return response.getStatusLine().getStatusCode() == HttpStatus.SC_OK;
         } catch (IOException ex) {
-            System.out.printf("Error sending request%n");
+            System.out.println("Error sending request");
             ex.printStackTrace();
         }
         return false;

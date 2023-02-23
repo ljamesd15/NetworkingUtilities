@@ -18,7 +18,7 @@ public class JobModule {
     }
 
     @Provides
-    public DynamicDnsJob getDynamicDnsJob(@Named("DynamicDns") final Route53Client route53Client) {
-        return new DynamicDnsJob(route53Client);
+    public DynamicDnsJob getDynamicDnsJob(@Named("DynamicDns") final Route53Client route53Client, final Outputter outputter) {
+        return new DynamicDnsJob(route53Client, outputter);
     }
 }
