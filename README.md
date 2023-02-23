@@ -1,0 +1,2 @@
+## What is this repository?
+This repo contains all the utility and tools that I have needed for local development. A source controlled location for scripts to increase local development velocity like DDNS or jobs that can be pulled locally and scheduled through crons/task schedulers.

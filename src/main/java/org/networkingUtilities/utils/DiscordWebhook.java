@@ -1,18 +1,21 @@
 package org.networkingUtilities.utils;
 
+import lombok.Builder;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
+@Builder
 public class DiscordWebhook {
 
-    private final String webhookUrl;
+    private static final String DEFAULT_WEBHOOK_URL =
+            "https://discordapp.com/api/webhooks/1077964961105596426/_heFLKBXbX1WW0g53YjlrmRElWV6Go9-4OwQJlHyWPlCIxjGE-xUXZEHo0dPILtJJ0UJ";
 
-    public DiscordWebhook(final String webhookUrl) {
-        this.webhookUrl = webhookUrl;
-    };
+    @Builder.Default
+    private final String webhookUrl = DEFAULT_WEBHOOK_URL;
 
     public boolean sendDiscordMessage(final String jsonContent) {
         try {

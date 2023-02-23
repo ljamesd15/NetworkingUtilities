@@ -20,7 +20,10 @@ public class Main {
             return;
         }
 
-        final JobRunner jobRunner = new JobRunner(maybeJobRunType.get(), Arrays.copyOfRange(args, 1, args.length));
+        final JobRunner jobRunner = JobRunner.builder()
+                .jobRunType(maybeJobRunType.get())
+                .arguments(Arrays.copyOfRange(args, 1, args.length))
+                .build();
         jobRunner.runJob();
     }
 

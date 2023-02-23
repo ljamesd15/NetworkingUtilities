@@ -11,13 +11,22 @@ repositories {
 
 dependencies {
 
+    // AWS
     implementation platform('software.amazon.awssdk:bom:2.15.0')
     implementation 'software.amazon.awssdk:route53'
 
-    implementation  'org.apache.httpcomponents:httpclient:4.5.14'
+    // Apache
+    compileOnly 'org.apache.httpcomponents:httpclient:4.5.14'
 
+    // Lombok
+    compileOnly 'org.projectlombok:lombok:1.18.26'
+    annotationProcessor 'org.projectlombok:lombok:1.18.26'
+
+    // Testing
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+    testCompileOnly 'org.projectlombok:lombok:1.18.26'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.26'
 }
 
 test {

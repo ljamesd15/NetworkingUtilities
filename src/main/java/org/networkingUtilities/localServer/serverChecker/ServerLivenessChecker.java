@@ -1,20 +1,19 @@
 package org.networkingUtilities.localServer.serverChecker;
 
+import lombok.Builder;
+import lombok.Data;
+
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Optional;
 
+@Builder
+@Data
 public class ServerLivenessChecker {
 
     private final String hostname;
     private final int port;
     private final Optional<String> serverRestartFilePath;
-
-    public ServerLivenessChecker(final String hostname, final int port, final Optional<String> serverRestartFilePath) {
-        this.hostname = hostname;
-        this.port = port;
-        this.serverRestartFilePath = serverRestartFilePath;
-    }
 
     public boolean isServerAvailable() {
         try (final Socket socket = new Socket(this.hostname, this.port)) {
@@ -25,6 +24,7 @@ public class ServerLivenessChecker {
         }
     }
 
+    @Override
     public String toString() {
         return String.format("%s:%d", this.hostname, this.port);
     }

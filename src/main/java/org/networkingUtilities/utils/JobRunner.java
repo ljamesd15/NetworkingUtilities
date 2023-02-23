@@ -1,17 +1,22 @@
 package org.networkingUtilities.utils;
 
+import lombok.Builder;
+import lombok.Data;
 import org.networkingUtilities.localServer.serverChecker.ServerLivenessChecker;
 
 import java.util.Optional;
 
+@Builder
+@Data
 public class JobRunner {
 
     public enum JobRunType {
-        LIVENESS_CHECK("LivenessCheck");
+        LIVENESS_CHECK("LivenessCheck"),
+        DYNAMIC_DNS("DynamicDns");
 
         public final String label;
 
-        private JobRunType(final String label) {
+        JobRunType(final String label) {
             this.label = label;
         }
 
@@ -28,18 +33,11 @@ public class JobRunner {
 
     private static final int MAX_RETRIES = 3;
     private static final int BACKOFF_IN_SECONDS = 30;
-    private static final String DEFAULT_WEBHOOK_URL =
-            "https://discordapp.com/api/webhooks/1077964961105596426/_heFLKBXbX1WW0g53YjlrmRElWV6Go9-4OwQJlHyWPlCIxjGE-xUXZEHo0dPILtJJ0UJ";
 
     private final JobRunType jobRunType;
     private final String[] arguments;
-    private final DiscordWebhook discordWebhook;
-
-    public JobRunner(final JobRunType jobRunType, final String[] jobArguments) {
-        this.jobRunType = jobRunType;
-        this.arguments = jobArguments;
-        this.discordWebhook = new DiscordWebhook(DEFAULT_WEBHOOK_URL);
-    }
+    @Builder.Default
+    private final DiscordWebhook discordWebhook = DiscordWebhook.builder().build();
 
     public void runJob() {
         switch (this.jobRunType) {
@@ -53,13 +51,14 @@ public class JobRunner {
                     return;
                 }
                 final Optional<String> maybeServerRestartFile = Optional.ofNullable(this.arguments.length > 2 ? this.arguments[2] : null);
-                final ServerLivenessChecker serverLivenessChecker = new ServerLivenessChecker(
-                        hostname,
-                        port,
-                        maybeServerRestartFile
-                );
+                final ServerLivenessChecker serverLivenessChecker = ServerLivenessChecker.builder()
+                        .hostname(hostname)
+                        .port(port)
+                        .serverRestartFilePath(maybeServerRestartFile)
+                        .build();
                 this.checkServerLiveness(serverLivenessChecker, MAX_RETRIES);
                 return;
+
             default:
                 System.out.printf("Unhandled job run type: %s\n", this.jobRunType);
         }
