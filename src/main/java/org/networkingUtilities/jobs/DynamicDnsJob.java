@@ -1,10 +1,21 @@
 package org.networkingUtilities.jobs;
 
+import software.amazon.awssdk.services.route53.Route53Client;
+
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.List;
 
 public class DynamicDnsJob implements BaseJob {
 
     private static final int DEFAULT_TTL_IN_SECONDS = 300;
+
+    private final Route53Client route53Client;
+
+    @Inject
+    public DynamicDnsJob(@Named("DynamicDns") final Route53Client route53Client) {
+        this.route53Client = route53Client;
+    }
 
     @Override
     public boolean runJob(final List<String> arguments) {
