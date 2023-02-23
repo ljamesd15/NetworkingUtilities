@@ -1,15 +1,17 @@
 package org.networkingUtilities.jobs;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import software.amazon.awssdk.services.route53.Route53Client;
 
+import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.util.List;
 
 public class DynamicDnsJob implements BaseJob {
 
     private static final int DEFAULT_TTL_IN_SECONDS = 300;
 
+    @SuppressFBWarnings("EI_EXPOSE_REP")
     private final Route53Client route53Client;
 
     @Inject

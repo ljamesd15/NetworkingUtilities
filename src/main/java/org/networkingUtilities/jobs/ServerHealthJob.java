@@ -1,17 +1,23 @@
 package org.networkingUtilities.jobs;
 
 import org.networkingUtilities.serverHealth.ServerHealthClient;
-import org.networkingUtilities.utils.DiscordWebhook;
+import org.networkingUtilities.utils.outputter.Outputter;
 
 import java.util.List;
 import java.util.Optional;
+import javax.inject.Inject;
 
 import static org.networkingUtilities.jobs.JobRunner.BACKOFF_IN_SECONDS;
 import static org.networkingUtilities.jobs.JobRunner.MAX_RETRIES;
 
 public class ServerHealthJob implements BaseJob {
 
-    private final DiscordWebhook discordWebhook = DiscordWebhook.builder().build();
+    private final Outputter outputter;
+
+    @Inject
+    public ServerHealthJob(final Outputter outputter) {
+        this.outputter = outputter;
+    }
 
     @Override
     public boolean runJob(final List<String> arguments) {
@@ -48,12 +54,12 @@ public class ServerHealthJob implements BaseJob {
             if (retries == 0) {
                 final String failureMessage =
                         String.format("{\"content\": \"Server %s is unavailable, attempting server restart\"}", serverHealthClient);
-                this.discordWebhook.sendMessage(failureMessage);
+                this.outputter.sendMessage(failureMessage);
                 final boolean restartedSuccessfully = serverHealthClient.restartServer();
                 if (!restartedSuccessfully) {
                     final String failedToRestartMessage =
                             String.format("{\"content\": \"Failed to restart server %s\"}", serverHealthClient);
-                    this.discordWebhook.sendMessage(failedToRestartMessage);
+                    this.outputter.sendMessage(failedToRestartMessage);
                 }
             } else {
                 System.out.printf("Server liveness check failed for %s, sleeping for %d seconds%n",

@@ -30,11 +30,7 @@ public class NetworkUtilities {
             return;
         }
 
-        final JobRunner jobRunner = JobRunner.builder()
-                .jobType(maybeJobRunType.get())
-                .arguments(arguments.subList(1, arguments.size()))
-                .build();
-        jobRunner.runJob();
+        new JobRunner().runJob(maybeJobRunType.get(), arguments.subList(1, arguments.size()));
     }
 
     private Optional<JobType> getJobType(final String jobArgument) {

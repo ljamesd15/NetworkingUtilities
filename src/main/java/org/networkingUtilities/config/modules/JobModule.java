@@ -4,6 +4,7 @@ import dagger.Module;
 import dagger.Provides;
 import org.networkingUtilities.jobs.DynamicDnsJob;
 import org.networkingUtilities.jobs.ServerHealthJob;
+import org.networkingUtilities.utils.outputter.Outputter;
 import software.amazon.awssdk.services.route53.Route53Client;
 
 import javax.inject.Named;
@@ -12,8 +13,8 @@ import javax.inject.Named;
 public class JobModule {
 
     @Provides
-    public ServerHealthJob getServerHealthJob() {
-        return new ServerHealthJob();
+    public ServerHealthJob getServerHealthJob(final Outputter outputter) {
+        return new ServerHealthJob(outputter);
     }
 
     @Provides

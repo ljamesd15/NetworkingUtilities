@@ -6,6 +6,7 @@ import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.route53.Route53Client;
+import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
 
 import javax.inject.Named;
 
@@ -13,26 +14,44 @@ import javax.inject.Named;
 public class AwsModule {
 
     @Provides
-    @Named("AWSRegion")
+    @Named("Default")
     public Region getAwsRegion() {
         return Region.US_WEST_2;
     }
 
     @Provides
     @Named("DynamicDns")
-    public AwsCredentialsProvider getDefaultCredsProvider() {
+    public AwsCredentialsProvider getDynamicDnsCredsProvider() {
         return DefaultCredentialsProvider.builder()
                 .profileName("dynamic-dns")
                 .build();
     }
 
     @Provides
+    @Named("SecretsFetcher")
+    public AwsCredentialsProvider getSecretsFetcherCredsProvider() {
+        return DefaultCredentialsProvider.builder()
+                .profileName("secrets-fetcher")
+                .build();
+    }
+
+    @Provides
     @Named("DynamicDns")
-    public Route53Client getDefaultRoute53Client(@Named("AWSRegion") final Region region,
-                                                 @Named("DynamicDns") final AwsCredentialsProvider credentialsProvider) {
+    public Route53Client getDynamicDnsRoute53Client(@Named("Default") final Region region,
+                                                    @Named("DynamicDns") final AwsCredentialsProvider credentialsProvider) {
         return Route53Client.builder()
                 .credentialsProvider(credentialsProvider)
                 .region(region)
+                .build();
+    }
+
+    @Provides
+    @Named("SecretsFetcher")
+    public SecretsManagerClient getSecretsFetcherSecretsManagerClient(@Named("Default") final Region region,
+                                                                      @Named("SecretsFetcher") final AwsCredentialsProvider credentialsProvider) {
+        return SecretsManagerClient.builder()
+                .region(region)
+                .credentialsProvider(credentialsProvider)
                 .build();
     }
 }

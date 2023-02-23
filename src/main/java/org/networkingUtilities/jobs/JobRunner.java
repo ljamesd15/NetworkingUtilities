@@ -1,25 +1,14 @@
 package org.networkingUtilities.jobs;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import lombok.Builder;
 import org.networkingUtilities.config.DaggerJobRunnerComponent;
-import org.networkingUtilities.config.JobRunnerComponent;
-import org.networkingUtilities.utils.DiscordWebhook;
 
-import javax.inject.Inject;
 import java.util.List;
+import javax.inject.Inject;
 
-@Builder
-@SuppressFBWarnings("EI_EXPOSE_REP") // Lombok generated arguments method
 public class JobRunner {
 
-    public static final int MAX_RETRIES = 3;
+    public static final int MAX_RETRIES = 0;
     public static final int BACKOFF_IN_SECONDS = 30;
-
-    private final JobType jobType;
-    private final List<String> arguments;
-    @Builder.Default
-    private final DiscordWebhook discordWebhook = DiscordWebhook.builder().build();
 
     @Inject
     ServerHealthJob serverHealthJob;
@@ -27,20 +16,22 @@ public class JobRunner {
     @Inject
     DynamicDnsJob dynamicDnsJob;
 
-    public void runJob() {
+    public JobRunner() {
         // Set up field injections
         DaggerJobRunnerComponent.builder().build().inject(this);
+    }
 
+    public void runJob(final JobType jobType, final List<String> arguments) {
         boolean wasSuccessful;
-        switch (this.jobType) {
+        switch (jobType) {
             case SERVER_HEALTH:
-                wasSuccessful = this.serverHealthJob.runJob(this.arguments);
+                wasSuccessful = this.serverHealthJob.runJob(arguments);
                 break;
             case DYNAMIC_DNS:
-                wasSuccessful = this.dynamicDnsJob.runJob(this.arguments);
+                wasSuccessful = this.dynamicDnsJob.runJob(arguments);
                 break;
             default:
-                System.out.printf("Unhandled job run type: %s%n", this.jobType);
+                System.out.printf("Unhandled job run type: %s%n", jobType);
                 wasSuccessful = false;
                 break;
         }
