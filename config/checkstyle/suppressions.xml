@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE suppressions PUBLIC
+        "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+        "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+
+<suppressions>
+    <!-- can't split long messages between lines -->
+    <suppress id="lineLengthXml" files="google_checks\.xml" lines="58,127"/>
+
+    <!-- illegal words are part of Javadoc -->
+    <suppress checks="TodoComment" files=".*TodoCommentCheck\.java"/>
+
+    <!-- Tone down the checking for test code -->
+    <suppress checks="ExecutableStatementCount|JavaNCSS"
+              files="[\\/]test\.java"/>
+
+    <!-- Fixing these cases will decrease code readability -->
+    <suppress checks="MultipleStringLiterals" files="JavadocStyleCheck\.java|XMLLogger\.java"/>
+
+    <!-- until https://github.com/checkstyle/checkstyle/issues/5234 -->
+    <suppress id="MatchXPathBranchContains" files="[\\/]DetailAstImplTest.java"/>
+</suppressions>

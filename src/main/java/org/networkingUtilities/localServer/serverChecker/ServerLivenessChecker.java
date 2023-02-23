@@ -1,11 +1,13 @@
 package org.networkingUtilities.localServer.serverChecker;
 
-import lombok.Builder;
-import lombok.Data;
-
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Optional;
+import javax.net.ssl.SSLSocketFactory;
+import lombok.Builder;
+import lombok.Data;
+
 
 @Builder
 @Data
@@ -16,7 +18,7 @@ public class ServerLivenessChecker {
     private final Optional<String> serverRestartFilePath;
 
     public boolean isServerAvailable() {
-        try (final Socket socket = new Socket(this.hostname, this.port)) {
+        try (final Socket socket = SSLSocketFactory.getDefault().createSocket(this.hostname, this.port)) {
             return socket.isConnected();
         } catch (IOException ex) {
             ex.printStackTrace(System.out);
@@ -29,15 +31,15 @@ public class ServerLivenessChecker {
         return String.format("%s:%d", this.hostname, this.port);
     }
 
+
+    @SuppressFBWarnings
     public boolean restartServer() {
         if (serverRestartFilePath.isEmpty()) {
             System.out.println("No server restart file defined");
             return false;
         }
         try {
-            Runtime.
-                    getRuntime().
-                    exec(String.format("cmd /c start \"\" %s", this.serverRestartFilePath.get()));
+            Runtime.getRuntime().exec(String.format("cmd /c start \"\" %s", this.serverRestartFilePath.get()));
             return true;
         } catch (IOException ex) {
             System.out.println("Unable to restart server due to exception");
