@@ -1,6 +1,8 @@
 package org.networkingUtilities.jobs;
 
 import org.networkingUtilities.config.DaggerJobRunnerComponent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import javax.inject.Inject;

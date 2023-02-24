@@ -15,7 +15,7 @@ public class AwsModule {
 
     @Provides
     @Named("Default")
-    public Region getDefaultAwsRegion() {
+    public Region getDefaultAwsRegion() throws RuntimeException {
         return Region.US_WEST_2;
     }
 
