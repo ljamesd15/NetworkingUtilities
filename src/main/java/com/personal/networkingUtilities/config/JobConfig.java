@@ -1,10 +1,10 @@
-package org.networkingUtilities.config.modules;
+package com.personal.networkingUtilities.config;
 
 import dagger.Module;
 import dagger.Provides;
-import org.networkingUtilities.jobs.DynamicDnsJob;
-import org.networkingUtilities.jobs.ServerHealthJob;
-import org.networkingUtilities.utils.outputter.Outputter;
+import com.personal.networkingUtilities.jobs.DynamicDnsJob;
+import com.personal.networkingUtilities.jobs.ServerHealthJob;
+import com.personal.networkingUtilities.utils.outputter.Outputter;
 import software.amazon.awssdk.services.route53.Route53Client;
 
 import javax.inject.Named;

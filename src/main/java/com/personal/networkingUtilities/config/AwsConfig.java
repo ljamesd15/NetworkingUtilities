@@ -1,4 +1,4 @@
-package org.networkingUtilities.config.modules;
+package com.personal.networkingUtilities.config;
 
 import dagger.Module;
 import dagger.Provides;

@@ -18,7 +18,7 @@ import javax.inject.Named;
 public class DiscordWebhook implements Outputter {
 
     private static final String DISCORD_SECRET_ARN =
-            "arn:aws:secretsmanager:us-west-2:872167319659:secret:prod/NetworkUtilities/DiscordWebhook-DKDoeN";
+            "arn:aws:secretsmanager:us-west-2:872167319659:secret:prod/NetworkUtilities/DiscordWebhook-gDc78L";
 
     @SuppressFBWarnings("EI_EXPOSE_REP")
     private final SecretsManagerClient secretsManagerClient;
