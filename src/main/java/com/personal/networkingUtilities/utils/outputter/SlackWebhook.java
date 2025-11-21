@@ -23,7 +23,7 @@ public class SlackWebhook implements Outputter {
     private final Slack slack;
     private final ObjectMapper objectMapper;
 
-    private static final Logger logger = LoggerFactory.getLogger(DiscordWebhook.class);
+    private static final Logger logger = LoggerFactory.getLogger(SlackWebhook.class);
 
     public SlackWebhook(final SecretsManagerClient secretsManagerClient,
                         final Slack slack,

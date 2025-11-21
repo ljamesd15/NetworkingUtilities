@@ -1,6 +1,7 @@
 package com.personal.networkingUtilities.jobs;
 
 import com.personal.networkingUtilities.serverHealth.ServerHealthClient;
+import com.personal.networkingUtilities.utils.metrics.MetricEmitter;
 import com.personal.networkingUtilities.utils.outputter.Outputter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,12 +14,18 @@ import static com.personal.networkingUtilities.jobs.JobRunner.MAX_RETRIES;
 
 public class ServerHealthJob implements BaseJob {
 
+    private static final String NAMESPACE = "HOMESERVERS";
+    private static final String ADDRESS_DIMENSION = "Address";
+    private static final String LIVENESS_METRIC_NAME = "Liveness";
+
     private final Outputter outputter;
+    private final MetricEmitter metricEmitter;
 
     private static final Logger logger = LoggerFactory.getLogger(ServerHealthJob.class);
 
-    public ServerHealthJob(final Outputter outputter) {
+    public ServerHealthJob(final Outputter outputter, final MetricEmitter metricEmitter) {
         this.outputter = outputter;
+        this.metricEmitter = metricEmitter;
     }
 
     @Override
@@ -42,15 +49,21 @@ public class ServerHealthJob implements BaseJob {
                 .port(port)
                 .serverRestartFilePath(maybeServerRestartFile)
                 .build();
-        this.checkServerLiveness(serverHealthClient, MAX_RETRIES);
+
+        boolean success = this.checkServerLiveness(serverHealthClient, MAX_RETRIES);
+        this.metricEmitter.emitMetric(NAMESPACE,
+                ADDRESS_DIMENSION,
+                hostname,
+                LIVENESS_METRIC_NAME,
+                success ? 1: 0);
+
         return true;
     }
 
-    private void checkServerLiveness(final ServerHealthClient serverHealthClient, final int retries) {
+    private boolean checkServerLiveness(final ServerHealthClient serverHealthClient, final int retries) {
         if (retries < 0) {
-            throw new IllegalArgumentException(String.format("Retries %d, cannot be less than 0%n", retries));
+            return false;
         }
-
 
         if (!serverHealthClient.isServerAvailable()) {
             if (retries == 0) {
@@ -71,12 +84,13 @@ public class ServerHealthJob implements BaseJob {
                     Thread.sleep(BACKOFF_IN_SECONDS * 1000);
                 } catch (InterruptedException ex) {
                     logger.error("Error while sleeping after failed server connection. Failing job run", ex);
-                    return;
+                    return false;
                 }
-                checkServerLiveness(serverHealthClient, retries - 1);
             }
+            return this.checkServerLiveness(serverHealthClient, retries - 1);
         } else {
             logger.info("Server: {} was available", serverHealthClient);
+            return true;
         }
     }
 }

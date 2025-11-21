@@ -9,7 +9,7 @@ import javax.inject.Inject;
 
 public class JobRunner {
 
-    public static final int MAX_RETRIES = 0;
+    public static final int MAX_RETRIES = 3;
     public static final int BACKOFF_IN_SECONDS = 30;
 
     @Inject

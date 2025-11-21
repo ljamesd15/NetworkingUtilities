@@ -5,6 +5,7 @@ import dagger.Provides;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.cloudwatch.CloudWatchClient;
 import software.amazon.awssdk.services.route53.Route53Client;
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
 
@@ -43,6 +44,14 @@ public class AwsConfig {
     }
 
     @Provides
+    @Named("CloudwatchReadWrite")
+    public AwsCredentialsProvider getCloudwatchCredsProvider() {
+        return DefaultCredentialsProvider.builder()
+                .profileName("cloudwatch-rw")
+                .build();
+    }
+
+    @Provides
     @Named("DynamicDns")
     public Route53Client getDynamicDnsRoute53Client(@Named("PartitionHome") final Region region,
                                                     @Named("DynamicDns") final AwsCredentialsProvider credentialsProvider) {
@@ -57,6 +66,16 @@ public class AwsConfig {
     public SecretsManagerClient getSecretsFetcherSecretsManagerClient(@Named("Default") final Region region,
                                                                       @Named("SecretsFetcher") final AwsCredentialsProvider credentialsProvider) {
         return SecretsManagerClient.builder()
+                .region(region)
+                .credentialsProvider(credentialsProvider)
+                .build();
+    }
+
+    @Provides
+    @Named("CloudwatchReadWrite")
+    public CloudWatchClient getCloudwatchReadWriteClient(@Named("Default") final Region region,
+                                                         @Named("CloudwatchReadWrite") final AwsCredentialsProvider credentialsProvider) {
+        return CloudWatchClient.builder()
                 .region(region)
                 .credentialsProvider(credentialsProvider)
                 .build();

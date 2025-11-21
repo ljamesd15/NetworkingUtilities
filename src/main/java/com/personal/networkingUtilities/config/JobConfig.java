@@ -1,5 +1,6 @@
 package com.personal.networkingUtilities.config;
 
+import com.personal.networkingUtilities.utils.metrics.MetricEmitter;
 import dagger.Module;
 import dagger.Provides;
 import com.personal.networkingUtilities.jobs.DynamicDnsJob;
@@ -13,8 +14,9 @@ import javax.inject.Named;
 public class JobConfig {
 
     @Provides
-    public ServerHealthJob  getServerHealthJob(@Named("Discord") final Outputter outputter) {
-        return new ServerHealthJob(outputter);
+    public ServerHealthJob  getServerHealthJob(@Named("Discord") final Outputter outputter,
+                                               @Named("Cloudwatch") final MetricEmitter metricEmitter) {
+        return new ServerHealthJob(outputter, metricEmitter);
     }
 
     @Provides
