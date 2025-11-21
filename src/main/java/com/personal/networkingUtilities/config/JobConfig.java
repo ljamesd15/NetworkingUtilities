@@ -14,7 +14,7 @@ import javax.inject.Named;
 public class JobConfig {
 
     @Provides
-    public ServerHealthJob  getServerHealthJob(@Named("Discord") final Outputter outputter,
+    public ServerHealthJob getServerHealthJob(@Named("Discord") final Outputter outputter,
                                                @Named("Cloudwatch") final MetricEmitter metricEmitter) {
         return new ServerHealthJob(outputter, metricEmitter);
     }

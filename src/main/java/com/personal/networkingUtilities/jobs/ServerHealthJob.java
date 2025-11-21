@@ -1,6 +1,7 @@
 package com.personal.networkingUtilities.jobs;
 
 import com.personal.networkingUtilities.serverHealth.ServerHealthClient;
+import com.personal.networkingUtilities.utils.Arguments;
 import com.personal.networkingUtilities.utils.metrics.MetricEmitter;
 import com.personal.networkingUtilities.utils.outputter.Outputter;
 import org.slf4j.Logger;
@@ -18,6 +19,7 @@ public class ServerHealthJob implements BaseJob {
     private static final String ADDRESS_DIMENSION = "Address";
     private static final String LIVENESS_METRIC_NAME = "Liveness";
 
+
     private final Outputter outputter;
     private final MetricEmitter metricEmitter;
 
@@ -29,31 +31,37 @@ public class ServerHealthJob implements BaseJob {
     }
 
     @Override
-    public boolean runJob(final List<String> arguments) {
-        if (arguments.size() < 2) {
-            logger.error("Insufficient arguments. You must provide at least the hostname and the port of the server");
+    public boolean runJob(final Arguments arguments) {
+        final Optional<String> maybeHostname = arguments.getArgumentValue(Arguments.HOSTNAME_ARG);
+        final Optional<String> maybePort = arguments.getArgumentValue(Arguments.PORT_ARG);
+
+        if (maybeHostname.isEmpty() || maybePort.isEmpty()) {
+            logger.error("Missing arguments. Either hostname or port is missing");
             return false;
         }
-        final String hostname = arguments.get(0);
+
         int port;
         try {
-            port = Integer.parseInt(arguments.get(1));
+            port = Integer.parseInt(maybePort.get());
         } catch (NumberFormatException ex) {
-            logger.error("Unable to parse integer from {}", arguments.get(1));
+            logger.error("Unable to parse integer from {}", maybePort.get());
             return false;
         }
-        final Optional<String> maybeServerRestartFile =
-                Optional.ofNullable(arguments.size() > 2 ? arguments.get(2) : null);
+
+        final Optional<String> maybeServerRestartFile = arguments.getArgumentValue(Arguments.SERVER_RESTART_FILE_PATH_ARG);
+        final Optional<ServerHealthClient.ServerType> maybeServerType = arguments.getArgumentValue(Arguments.SERVER_TYPE_ARG)
+                .map(ServerHealthClient.ServerType::valueOf);
         final ServerHealthClient serverHealthClient = ServerHealthClient.builder()
-                .hostname(hostname)
+                .hostname(maybeHostname.get())
                 .port(port)
-                .serverRestartFilePath(maybeServerRestartFile)
+                .maybeServerRestartFilePath(maybeServerRestartFile)
+                .maybeServerType(maybeServerType)
                 .build();
 
         boolean success = this.checkServerLiveness(serverHealthClient, MAX_RETRIES);
         this.metricEmitter.emitMetric(NAMESPACE,
                 ADDRESS_DIMENSION,
-                hostname,
+                maybeHostname.get(),
                 LIVENESS_METRIC_NAME,
                 success ? 1: 0);
 

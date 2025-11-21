@@ -1,6 +1,7 @@
 package com.personal.networkingUtilities.jobs;
 
 import com.personal.networkingUtilities.component.DaggerJobRunnerComponent;
+import com.personal.networkingUtilities.utils.Arguments;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +26,7 @@ public class JobRunner {
         DaggerJobRunnerComponent.builder().build().inject(this);
     }
 
-    public void runJob(final JobType jobType, final List<String> arguments) {
+    public void runJob(final JobType jobType, final Arguments arguments) {
         boolean wasSuccessful;
         switch (jobType) {
             case SERVER_HEALTH:

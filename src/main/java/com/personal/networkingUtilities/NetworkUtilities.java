@@ -2,6 +2,7 @@ package com.personal.networkingUtilities;
 
 import com.personal.networkingUtilities.jobs.JobRunner;
 import com.personal.networkingUtilities.jobs.JobType;
+import com.personal.networkingUtilities.utils.Arguments;
 import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,23 +19,24 @@ public class NetworkUtilities {
 
     public static void main(final String[] args) {
         final NetworkUtilities networkUtilities = new NetworkUtilities();
-        networkUtilities.start(Arrays.stream(args).toList());
+        final Arguments arguments = new Arguments(Arrays.stream(args).toList());
+        networkUtilities.start(arguments);
     }
 
-    private void start(final List<String> arguments) {
-        if (arguments.size() <= 0) {
-            logger.error("Invalid number of arguments, there must be at least one.");
+    private void start(final Arguments arguments) {
+        Optional<String> maybeJobType = arguments.getArgumentValue(Arguments.JOB_TYPE_ARG);
+        if (maybeJobType.isEmpty()) {
+            logger.error("Must specify the job type");
             return;
         }
 
-        final Optional<JobType> maybeJobRunType = getJobType(arguments.get(0));
-
+        final Optional<JobType> maybeJobRunType = getJobType(maybeJobType.get());
         if (maybeJobRunType.isEmpty()) {
-            logger.error("Invalid job run type: {}", arguments.get(0));
+            logger.error("Invalid job run type: {}", maybeJobType.get());
             return;
         }
 
-        new JobRunner().runJob(maybeJobRunType.get(), arguments.subList(1, arguments.size()));
+        new JobRunner().runJob(maybeJobRunType.get(), arguments);
     }
 
     private Optional<JobType> getJobType(final String jobArgument) {

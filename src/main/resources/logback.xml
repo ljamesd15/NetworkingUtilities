@@ -7,6 +7,7 @@
 
     <logger name="org.apache" level="ERROR"/>
     <logger name="httpclient" level="ERROR"/>
+    <logger name="com.ibasco.agql" level="ERROR"/>
 
     <root level="INFO">
         <appender-ref ref="STDOUT" />

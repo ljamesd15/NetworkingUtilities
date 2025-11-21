@@ -1,5 +1,6 @@
 package com.personal.networkingUtilities.jobs;
 
+import com.personal.networkingUtilities.utils.Arguments;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -24,7 +25,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
+import java.util.Optional;
 
 import static com.personal.networkingUtilities.jobs.JobRunner.BACKOFF_IN_SECONDS;
 
@@ -45,19 +46,21 @@ public class DynamicDnsJob implements BaseJob {
     }
 
     @Override
-    public boolean runJob(final List<String> arguments) {
-        if (arguments.size() < 2) {
-            logger.error("Insufficient arguments. You must provide at least the record name and type");
+    public boolean runJob(final Arguments arguments) {
+        final Optional<String> maybeRecordName = arguments.getArgumentValue(Arguments.RECORD_NAME_ARG);
+        final Optional<String> maybeRecordType = arguments.getArgumentValue(Arguments.RECORD_TYPE_ARG);
+        if (maybeRecordName.isEmpty() || maybeRecordType.isEmpty()) {
+            logger.error("Missing arguments. Either record name or record type is missing");
             return false;
         }
-        final String recordName = arguments.get(0);
-        final String recordType = arguments.get(1);
+
+        final Optional<String> maybeRecordTtl = arguments.getArgumentValue(Arguments.RECORD_TTL_ARG);
         int ttlInSeconds;
-        if (arguments.size() > 2) {
+        if (maybeRecordTtl.isPresent()) {
             try {
-                ttlInSeconds = Integer.parseInt(arguments.get(2));
+                ttlInSeconds = Integer.parseInt(maybeRecordTtl.get());
             } catch (NumberFormatException ex) {
-                logger.error("Unable to parse integer from {}", arguments.get(2));
+                logger.error("Unable to parse integer from {}", maybeRecordTtl.get());
                 return false;
             }
         } else {
@@ -72,8 +75,8 @@ public class DynamicDnsJob implements BaseJob {
             return false;
         }
 
-        if (!this.doesDnsEntryMatch(recordName, recordType, currentWanIp)) {
-            return this.updateAliasRecord(recordName, recordType, currentWanIp, ttlInSeconds);
+        if (!this.doesDnsEntryMatch(maybeRecordName.get(), maybeRecordType.get(), currentWanIp)) {
+            return this.updateAliasRecord(maybeRecordName.get(), maybeRecordType.get(), currentWanIp, ttlInSeconds);
         } else {
             logger.info("DNS entry is up to date: {}. Nothing to do", currentWanIp);
         }
