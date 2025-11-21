@@ -25,8 +25,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import javax.inject.Inject;
-import javax.inject.Named;
 
 import static com.personal.networkingUtilities.jobs.JobRunner.BACKOFF_IN_SECONDS;
 
@@ -41,8 +39,7 @@ public class DynamicDnsJob implements BaseJob {
 
     private static final Logger logger = LoggerFactory.getLogger(DynamicDnsJob.class);
 
-    @Inject
-    public DynamicDnsJob(@Named("DynamicDns") final Route53Client route53Client, final Outputter outputter) {
+    public DynamicDnsJob(final Route53Client route53Client, final Outputter outputter) {
         this.route53Client = route53Client;
         this.outputter = outputter;
     }

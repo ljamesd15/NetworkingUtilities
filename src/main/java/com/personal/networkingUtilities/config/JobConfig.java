@@ -13,12 +13,13 @@ import javax.inject.Named;
 public class JobConfig {
 
     @Provides
-    public ServerHealthJob getServerHealthJob(final Outputter outputter) {
+    public ServerHealthJob  getServerHealthJob(@Named("Discord") final Outputter outputter) {
         return new ServerHealthJob(outputter);
     }
 
     @Provides
-    public DynamicDnsJob getDynamicDnsJob(@Named("DynamicDns") final Route53Client route53Client, final Outputter outputter) {
+    public DynamicDnsJob getDynamicDnsJob(@Named("DynamicDns") final Route53Client route53Client,
+                                          @Named("Discord") final Outputter outputter) {
         return new DynamicDnsJob(route53Client, outputter);
     }
 }

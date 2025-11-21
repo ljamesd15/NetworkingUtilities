@@ -3,12 +3,9 @@ package com.personal.networkingUtilities.utils.outputter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.networkingUtilities.model.WebhookSecret;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import com.slack.api.Slack;
+import com.slack.api.webhook.Payload;
+import com.slack.api.webhook.WebhookResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.core.exception.SdkException;
@@ -17,37 +14,37 @@ import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueReques
 
 import java.io.IOException;
 
-public class DiscordWebhook implements Outputter {
+public class SlackWebhook implements Outputter {
 
-    private static final String DISCORD_SECRET_ARN =
-            "arn:aws:secretsmanager:us-west-2:872167319659:secret:prod/NetworkUtilities/DiscordWebhook-gDc78L";
+    private static final String SLACK_SECRET_ARN =
+            "arn:aws:secretsmanager:us-west-2:872167319659:secret:prod/NetworkUtilities/SlackWebhook-zZxYQu";
 
     private final SecretsManagerClient secretsManagerClient;
+    private final Slack slack;
     private final ObjectMapper objectMapper;
 
     private static final Logger logger = LoggerFactory.getLogger(DiscordWebhook.class);
 
-    public DiscordWebhook(final SecretsManagerClient secretsManagerClient, ObjectMapper objectMapper) {
+    public SlackWebhook(final SecretsManagerClient secretsManagerClient,
+                        final Slack slack,
+                        final ObjectMapper objectMapper) {
         this.secretsManagerClient = secretsManagerClient;
+        this.slack = slack;
         this.objectMapper = objectMapper;
     }
 
 
-    public boolean sendMessage(final String message) {
-        final HttpPost httpPost = new HttpPost(this.getWebhookUrl(DISCORD_SECRET_ARN));
-        httpPost.setHeader("Content-Type", "application/json");
-        httpPost.setHeader("Accept", "application/json");
-        final String jsonContent = String.format("{\"content\": \"%s\"}", message);
-
-        try (final CloseableHttpClient client = HttpClients.createDefault()) {
-            httpPost.setEntity(new StringEntity(jsonContent));
-            final CloseableHttpResponse response = client.execute(httpPost);
-            logger.info("{} {}", response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
-            return response.getStatusLine().getStatusCode() == HttpStatus.SC_OK;
+    public boolean sendMessage(final String jsonContent) {
+        final String webhookUrl = this.getWebhookUrl(SLACK_SECRET_ARN);
+        Payload payload = Payload.builder()
+                .text(jsonContent)
+                .build();
+        try {
+            final WebhookResponse response = this.slack.send(webhookUrl, payload);
+            return response.getCode() == 200;
         } catch (IOException ex) {
-            logger.error("Error sending request", ex);
+            return false;
         }
-        return false;
     }
 
     private String getWebhookUrl(final String secretName) {

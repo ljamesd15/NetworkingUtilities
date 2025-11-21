@@ -26,6 +26,7 @@
         <puppycrawl-checkstyle.verson>10.13.0</puppycrawl-checkstyle.verson>
         <logback.version>1.5.21</logback.version>
         <slf4j.version>2.0.17</slf4j.version>
+        <slack-sdk.version>1.45.3</slack-sdk.version>
     </properties>
 
     <dependencyManagement>
@@ -108,6 +109,13 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j.version}</version>
+        </dependency>
+
+        <!-- Slack -->
+        <dependency>
+            <groupId>com.slack.api</groupId>
+            <artifactId>slack-api-client</artifactId>
+            <version>${slack-sdk.version}</version>
         </dependency>
 
         <!-- Testing -->

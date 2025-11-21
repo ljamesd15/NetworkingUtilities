@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
-import javax.inject.Inject;
 
 import static com.personal.networkingUtilities.jobs.JobRunner.BACKOFF_IN_SECONDS;
 import static com.personal.networkingUtilities.jobs.JobRunner.MAX_RETRIES;
@@ -18,7 +17,6 @@ public class ServerHealthJob implements BaseJob {
 
     private static final Logger logger = LoggerFactory.getLogger(ServerHealthJob.class);
 
-    @Inject
     public ServerHealthJob(final Outputter outputter) {
         this.outputter = outputter;
     }
@@ -57,12 +55,12 @@ public class ServerHealthJob implements BaseJob {
         if (!serverHealthClient.isServerAvailable()) {
             if (retries == 0) {
                 final String failureMessage =
-                        String.format("{\"content\": \"Server %s is unavailable, attempting server restart\"}", serverHealthClient);
+                        String.format("Server %s is unavailable, attempting server restart", serverHealthClient);
                 this.outputter.sendMessage(failureMessage);
                 final boolean restartedSuccessfully = serverHealthClient.restartServer();
                 if (!restartedSuccessfully) {
                     final String failedToRestartMessage =
-                            String.format("{\"content\": \"Failed to restart server %s\"}", serverHealthClient);
+                            String.format("Failed to restart server %s", serverHealthClient);
                     this.outputter.sendMessage(failedToRestartMessage);
                 }
             } else {
