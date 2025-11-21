@@ -65,32 +65,37 @@ public class ServerHealthJob implements BaseJob {
             return false;
         }
 
-        if (!serverHealthClient.isServerAvailable()) {
-            if (retries == 0) {
-                final String failureMessage =
-                        String.format("Server %s is unavailable, attempting server restart", serverHealthClient);
-                this.outputter.sendMessage(failureMessage);
-                final boolean restartedSuccessfully = serverHealthClient.restartServer();
-                if (!restartedSuccessfully) {
-                    final String failedToRestartMessage =
-                            String.format("Failed to restart server %s", serverHealthClient);
-                    this.outputter.sendMessage(failedToRestartMessage);
-                }
-            } else {
-                logger.error("Server liveness check failed for {}, sleeping for {} seconds",
-                        serverHealthClient,
-                        BACKOFF_IN_SECONDS);
-                try {
-                    Thread.sleep(BACKOFF_IN_SECONDS * 1000);
-                } catch (InterruptedException ex) {
-                    logger.error("Error while sleeping after failed server connection. Failing job run", ex);
-                    return false;
-                }
-            }
-            return this.checkServerLiveness(serverHealthClient, retries - 1);
-        } else {
+        if (serverHealthClient.isServerAvailable()) {
             logger.info("Server: {} was available", serverHealthClient);
             return true;
+        }
+
+        final String failureMessage =
+                String.format("Server %s is unavailable, attempting server restart", serverHealthClient);
+        this.outputter.sendMessage(failureMessage);
+        final boolean restartedSuccessfully = serverHealthClient.restartServer();
+
+        if (!restartedSuccessfully) {
+            final String failedToRestartMessage =
+                    String.format("Failed to restart server %s", serverHealthClient);
+            this.outputter.sendMessage(failedToRestartMessage);
+            return false;
+        }
+
+        if (retries == 0) {
+            this.outputter.sendMessage("Exhausted retries and could not bring up server. Giving up.");
+            return false;
+        } else {
+            logger.error("Server liveness check failed for {}, sleeping for {} seconds",
+                    serverHealthClient,
+                    BACKOFF_IN_SECONDS);
+            try {
+                Thread.sleep(BACKOFF_IN_SECONDS * 1000);
+            } catch (InterruptedException ex) {
+                logger.error("Error while sleeping after failed server connection. Failing job run", ex);
+                return false;
+            }
+            return this.checkServerLiveness(serverHealthClient, retries - 1);
         }
     }
 }
