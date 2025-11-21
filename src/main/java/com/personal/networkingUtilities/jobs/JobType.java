@@ -1,4 +1,4 @@
-package org.networkingUtilities.jobs;
+package com.personal.networkingUtilities.jobs;
 
 public enum JobType {
     SERVER_HEALTH("ServerHealth"),

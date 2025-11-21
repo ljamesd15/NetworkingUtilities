@@ -6,7 +6,7 @@ import dagger.Binds;
 import dagger.Module;
 
 @Module
-public abstract class DiscordOutputModule {
+public abstract class DiscordOutputConfig {
 
     @Binds
     abstract Outputter getOutputter(DiscordWebhook outputter);

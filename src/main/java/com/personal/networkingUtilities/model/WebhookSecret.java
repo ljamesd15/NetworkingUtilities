@@ -1,4 +1,4 @@
-package org.networkingUtilities.model;
+package com.personal.networkingUtilities.model;
 
 import lombok.Builder;
 

@@ -10,7 +10,7 @@ import software.amazon.awssdk.services.route53.Route53Client;
 import javax.inject.Named;
 
 @Module
-public class JobModule {
+public class JobConfig {
 
     @Provides
     public ServerHealthJob getServerHealthJob(final Outputter outputter) {

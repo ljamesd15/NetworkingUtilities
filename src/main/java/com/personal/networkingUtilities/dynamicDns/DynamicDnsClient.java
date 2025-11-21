@@ -1,4 +1,4 @@
-package org.networkingUtilities.dynamicDns;
+package com.personal.networkingUtilities.dynamicDns;
 
 import lombok.Builder;
 

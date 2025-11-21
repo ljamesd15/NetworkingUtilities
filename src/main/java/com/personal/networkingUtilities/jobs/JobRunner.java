@@ -1,6 +1,6 @@
-package org.networkingUtilities.jobs;
+package com.personal.networkingUtilities.jobs;
 
-import org.networkingUtilities.config.DaggerJobRunnerComponent;
+import com.personal.networkingUtilities.component.DaggerJobRunnerComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +18,8 @@ public class JobRunner {
     @Inject
     DynamicDnsJob dynamicDnsJob;
 
+    private static final Logger logger = LoggerFactory.getLogger(JobRunner.class);
+
     public JobRunner() {
         // Set up field injections
         DaggerJobRunnerComponent.builder().build().inject(this);
@@ -33,10 +35,10 @@ public class JobRunner {
                 wasSuccessful = this.dynamicDnsJob.runJob(arguments);
                 break;
             default:
-                System.out.printf("Unhandled job run type: %s%n", jobType);
+                logger.error("Unhandled job run type: {}", jobType);
                 wasSuccessful = false;
                 break;
         }
-        System.out.printf("Job run was successful: %s%n", wasSuccessful);
+        logger.info("Job run was successful: {}", wasSuccessful);
     }
 }

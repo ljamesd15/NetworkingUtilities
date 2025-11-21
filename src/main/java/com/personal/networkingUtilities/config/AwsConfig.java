@@ -11,7 +11,7 @@ import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
 import javax.inject.Named;
 
 @Module
-public class AwsModule {
+public class AwsConfig {
 
     @Provides
     @Named("Default")

@@ -1,32 +1,36 @@
-package org.networkingUtilities;
+package com.personal.networkingUtilities;
 
+import com.personal.networkingUtilities.jobs.JobRunner;
+import com.personal.networkingUtilities.jobs.JobType;
 import lombok.NoArgsConstructor;
-import org.networkingUtilities.jobs.JobRunner;
-import org.networkingUtilities.jobs.JobType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @NoArgsConstructor
 public class NetworkUtilities {
 
+
+    private static final Logger logger = LoggerFactory.getLogger(NetworkUtilities.class);
+
     public static void main(final String[] args) {
         final NetworkUtilities networkUtilities = new NetworkUtilities();
-        networkUtilities.start(Arrays.stream(args).collect(Collectors.toUnmodifiableList()));
+        networkUtilities.start(Arrays.stream(args).toList());
     }
 
     private void start(final List<String> arguments) {
         if (arguments.size() <= 0) {
-            System.out.println("Invalid number of arguments, there must be at least one.");
+            logger.error("Invalid number of arguments, there must be at least one.");
             return;
         }
 
         final Optional<JobType> maybeJobRunType = getJobType(arguments.get(0));
 
         if (maybeJobRunType.isEmpty()) {
-            System.out.printf("Invalid job run type: %s%n", arguments.get(0));
+            logger.error("Invalid job run type: {}", arguments.get(0));
             return;
         }
 

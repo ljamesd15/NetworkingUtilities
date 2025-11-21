@@ -1,18 +1,22 @@
-package org.networkingUtilities.jobs;
+package com.personal.networkingUtilities.jobs;
 
-import org.networkingUtilities.serverHealth.ServerHealthClient;
-import org.networkingUtilities.utils.outputter.Outputter;
+import com.personal.networkingUtilities.serverHealth.ServerHealthClient;
+import com.personal.networkingUtilities.utils.outputter.Outputter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
 
-import static org.networkingUtilities.jobs.JobRunner.BACKOFF_IN_SECONDS;
-import static org.networkingUtilities.jobs.JobRunner.MAX_RETRIES;
+import static com.personal.networkingUtilities.jobs.JobRunner.BACKOFF_IN_SECONDS;
+import static com.personal.networkingUtilities.jobs.JobRunner.MAX_RETRIES;
 
 public class ServerHealthJob implements BaseJob {
 
     private final Outputter outputter;
+
+    private static final Logger logger = LoggerFactory.getLogger(ServerHealthJob.class);
 
     @Inject
     public ServerHealthJob(final Outputter outputter) {
@@ -22,7 +26,7 @@ public class ServerHealthJob implements BaseJob {
     @Override
     public boolean runJob(final List<String> arguments) {
         if (arguments.size() < 2) {
-            System.out.println("Insufficient arguments. You must provide at least the hostname and the port of the server");
+            logger.error("Insufficient arguments. You must provide at least the hostname and the port of the server");
             return false;
         }
         final String hostname = arguments.get(0);
@@ -30,7 +34,7 @@ public class ServerHealthJob implements BaseJob {
         try {
             port = Integer.parseInt(arguments.get(1));
         } catch (NumberFormatException ex) {
-            System.out.printf("Unable to parse integer from %s%n", arguments.get(1));
+            logger.error("Unable to parse integer from {}", arguments.get(1));
             return false;
         }
         final Optional<String> maybeServerRestartFile =
@@ -62,19 +66,19 @@ public class ServerHealthJob implements BaseJob {
                     this.outputter.sendMessage(failedToRestartMessage);
                 }
             } else {
-                System.out.printf("Server liveness check failed for %s, sleeping for %d seconds%n",
-                        serverHealthClient, BACKOFF_IN_SECONDS);
+                logger.error("Server liveness check failed for {}, sleeping for {} seconds",
+                        serverHealthClient,
+                        BACKOFF_IN_SECONDS);
                 try {
                     Thread.sleep(BACKOFF_IN_SECONDS * 1000);
                 } catch (InterruptedException ex) {
-                    System.out.println("Error while sleeping after failed server connection. Failing job run");
-                    ex.printStackTrace();
+                    logger.error("Error while sleeping after failed server connection. Failing job run", ex);
                     return;
                 }
                 checkServerLiveness(serverHealthClient, retries - 1);
             }
         } else {
-            System.out.printf("Server: %s was available%n", serverHealthClient);
+            logger.info("Server: {} was available", serverHealthClient);
         }
     }
 }

@@ -1,4 +1,4 @@
-package org.networkingUtilities.jobs;
+package com.personal.networkingUtilities.jobs;
 
 import java.util.List;
 

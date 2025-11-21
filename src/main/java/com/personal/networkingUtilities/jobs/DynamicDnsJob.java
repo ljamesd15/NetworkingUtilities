@@ -1,11 +1,12 @@
-package org.networkingUtilities.jobs;
+package com.personal.networkingUtilities.jobs;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.networkingUtilities.utils.outputter.Outputter;
+import com.personal.networkingUtilities.utils.outputter.Outputter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.services.route53.Route53Client;
 import software.amazon.awssdk.services.route53.model.Change;
 import software.amazon.awssdk.services.route53.model.ChangeAction;
@@ -27,17 +28,18 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import static org.networkingUtilities.jobs.JobRunner.BACKOFF_IN_SECONDS;
+import static com.personal.networkingUtilities.jobs.JobRunner.BACKOFF_IN_SECONDS;
 
 public class DynamicDnsJob implements BaseJob {
 
     private static final int DEFAULT_TTL_IN_SECONDS = 300;
     private static final String HOSTED_ZONE_ID = "ZEJDJNHNN5KF6";
 
-    @SuppressFBWarnings("EI_EXPOSE_REP")
     private final Route53Client route53Client;
 
     private final Outputter outputter;
+
+    private static final Logger logger = LoggerFactory.getLogger(DynamicDnsJob.class);
 
     @Inject
     public DynamicDnsJob(@Named("DynamicDns") final Route53Client route53Client, final Outputter outputter) {
@@ -48,7 +50,7 @@ public class DynamicDnsJob implements BaseJob {
     @Override
     public boolean runJob(final List<String> arguments) {
         if (arguments.size() < 2) {
-            System.out.println("Insufficient arguments. You must provide at least the record name and type");
+            logger.error("Insufficient arguments. You must provide at least the record name and type");
             return false;
         }
         final String recordName = arguments.get(0);
@@ -58,7 +60,7 @@ public class DynamicDnsJob implements BaseJob {
             try {
                 ttlInSeconds = Integer.parseInt(arguments.get(2));
             } catch (NumberFormatException ex) {
-                System.out.printf("Unable to parse integer from %s%n", arguments.get(2));
+                logger.error("Unable to parse integer from {}", arguments.get(2));
                 return false;
             }
         } else {
@@ -76,7 +78,7 @@ public class DynamicDnsJob implements BaseJob {
         if (!this.doesDnsEntryMatch(recordName, recordType, currentWanIp)) {
             return this.updateAliasRecord(recordName, recordType, currentWanIp, ttlInSeconds);
         } else {
-            System.out.printf("DNS entry is up to date: %s. Nothing to do%n", currentWanIp);
+            logger.info("DNS entry is up to date: {}. Nothing to do", currentWanIp);
         }
         return true;
     }
@@ -104,7 +106,7 @@ public class DynamicDnsJob implements BaseJob {
                 return br.readLine();
             }
         } catch (IOException ex) {
-            System.out.println("Error finding my IP address");
+            logger.error("Error finding my IP address");
             throw ex;
         }
     }
@@ -126,18 +128,17 @@ public class DynamicDnsJob implements BaseJob {
                                 .build())
                         .build())
                 .build());
-        System.out.printf("Updated %s of type %s to the new value %s with ttl %d%n", recordName, recordType, newIpAddress, ttlInSeconds);
+        logger.info("Updated {} of type {} to the new value {} with ttl {}", recordName, recordType, newIpAddress, ttlInSeconds);
         final String changeInfoId = response.changeInfo().id();
 
         try {
             while (!isChangeInfoInSync(changeInfoId)) {
-                System.out.printf("Change info, %s, not updated yet waiting %d seconds%n", changeInfoId, BACKOFF_IN_SECONDS);
+                logger.info("Change info, {}, not updated yet waiting {} seconds", changeInfoId, BACKOFF_IN_SECONDS);
                 Thread.sleep(BACKOFF_IN_SECONDS);
             }
             return true;
         } catch (InterruptedException ex) {
-            System.out.println("Interrupted while waiting for DNS update to sync.");
-            ex.printStackTrace();
+            logger.error("Interrupted while waiting for DNS update to sync.", ex);
             return false;
         }
     }

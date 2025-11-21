@@ -1,8 +1,9 @@
-package org.networkingUtilities.serverHealth;
+package com.personal.networkingUtilities.serverHealth;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.Builder;
 import lombok.Data;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -17,11 +18,13 @@ public class ServerHealthClient {
     private final int port;
     private final Optional<String> serverRestartFilePath;
 
+    private static final Logger logger = LoggerFactory.getLogger(ServerHealthClient.class);
+
     public boolean isServerAvailable() {
         try (final Socket socket = SSLSocketFactory.getDefault().createSocket(this.hostname, this.port)) {
             return socket.isConnected();
         } catch (IOException ex) {
-            ex.printStackTrace(System.out);
+            logger.info("Error checking server availability", ex);
             return false;
         }
     }
@@ -32,18 +35,16 @@ public class ServerHealthClient {
     }
 
 
-    @SuppressFBWarnings
     public boolean restartServer() {
         if (serverRestartFilePath.isEmpty()) {
-            System.out.println("No server restart file defined");
+            logger.warn("No server restart file defined");
             return false;
         }
         try {
             Runtime.getRuntime().exec(String.format("cmd /c start \"\" %s", this.serverRestartFilePath.get()));
             return true;
         } catch (IOException ex) {
-            System.out.println("Unable to restart server due to exception");
-            ex.printStackTrace();
+            logger.error("Unable to restart server due to exception", ex);
             return false;
         }
     }
